@@ -1,0 +1,105 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <stdexcept> 
+#include <cmath>     
+using namespace std;
+
+struct DataPoint {
+    double x; // Variable independiente
+    double y; // Variable dependiente
+};
+
+vector<DataPoint> readData(const string& filename) {
+    vector<DataPoint> data;
+    ifstream file(filename);
+    string line;
+
+    if (!file.is_open()) {
+        throw runtime_error("No se pudo abrir el archivo: " + filename);
+    }
+
+    while (getline(file, line)) {
+        stringstream ss(line);
+        DataPoint point;
+        ss >> point.x >> point.y;
+        data.push_back(point);
+    }
+
+    file.close();
+    return data;
+}
+
+struct LinearRegressionModel {
+    double slope;
+    double intercept;
+};
+
+LinearRegressionModel leastSquares(const vector<DataPoint>& data) {
+    double sum_x = 0.0;
+    double sum_y = 0.0;
+    double sum_xy = 0.0;
+    double sum_x_squared = 0.0;
+
+    for (const DataPoint& point : data) {
+        sum_x += point.x;
+        sum_y += point.y;
+        sum_xy += point.x * point.y;
+        sum_x_squared += point.x * point.x;
+    }
+
+    const double n = static_cast<double>(data.size());
+    const double slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x_squared - sum_x * sum_x);
+    const double intercept = (sum_y - slope * sum_x) / n;
+
+    return {slope, intercept};
+}
+
+double predict(const LinearRegressionModel& model, double x) {
+    return model.slope * x + model.intercept;
+}
+
+double meanSquaredError(const LinearRegressionModel& model, const vector<DataPoint>& data) {
+    double mse = 0.0;
+    for (const DataPoint& point : data) {
+        double prediction = predict(model, point.x);
+        mse += pow(point.y - prediction, 2);
+    }
+    return mse / static_cast<double>(data.size());
+}
+
+void saveResults(const LinearRegressionModel& model, const vector<DataPoint>& data, double mse, const string& filename) {
+    ofstream file(filename);
+    if (!file.is_open()) {
+        throw runtime_error("No se pudo crear el archivo de resultados: " + filename);
+    }
+
+    file << "Modelo de Regresión Lineal:\n";
+    file << "Coeficiente de pendiente (slope): " << model.slope << "\n";
+    file << "Término de intercepción (intercept): " << model.intercept << "\n";
+    file << "Error cuadrático medio (MSE): " << mse << "\n";
+
+
+    file.close();
+}
+
+int main() {
+    const string dataFilename = "datos.csv";
+    const string resultsFilename = "resultados.txt";
+
+    try {
+        vector<DataPoint> data = readData(dataFilename);
+
+        LinearRegressionModel model = leastSquares(data); 
+        double mse = meanSquaredError(model, data);
+
+        saveResults(model, data, mse, resultsFilename);
+
+        cout << "Resultados guardados en: " << resultsFilename << endl;
+    } catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
+    }
+
+    return 0;
+}
