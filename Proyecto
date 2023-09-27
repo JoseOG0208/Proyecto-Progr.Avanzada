@@ -2,13 +2,13 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
-#include <stdexcept> 
-#include <cmath>     
+#include <stdexcept>
+#include <cmath>
 using namespace std;
 
 struct DataPoint {
-    double x; // Variable independiente
-    double y; // Variable dependiente
+    double x;
+    double y;
 };
 
 vector<DataPoint> readData(const string& filename) {
@@ -23,13 +23,15 @@ vector<DataPoint> readData(const string& filename) {
     while (getline(file, line)) {
         stringstream ss(line);
         DataPoint point;
-        ss >> point.x >> point.y;
+        char comma;
+        ss >> point.x >> comma >> point.y; // Asumiendo que los datos están separados por comas
         data.push_back(point);
     }
 
     file.close();
     return data;
 }
+
 
 struct LinearRegressionModel {
     double slope;
@@ -85,13 +87,12 @@ void saveResults(const LinearRegressionModel& model, const vector<DataPoint>& da
 }
 
 int main() {
-    const string dataFilename = "datos.csv";
+    const string dataFilename = "datos.csv"; // Asegúrate de que este archivo exista en la misma carpeta que tu programa
     const string resultsFilename = "resultados.txt";
 
     try {
         vector<DataPoint> data = readData(dataFilename);
-
-        LinearRegressionModel model = leastSquares(data); 
+        LinearRegressionModel model = leastSquares(data);
         double mse = meanSquaredError(model, data);
 
         saveResults(model, data, mse, resultsFilename);
