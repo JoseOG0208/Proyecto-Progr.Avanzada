@@ -39,10 +39,10 @@ struct LinearRegressionModel {
 };
 
 LinearRegressionModel leastSquares(const vector<DataPoint>& data) {
-    double sum_x = 0.0;
-    double sum_y = 0.0;
-    double sum_xy = 0.0;
-    double sum_x_squared = 0.0;
+    double sum_x = 0;
+    double sum_y = 0;
+    double sum_xy = 0;
+    double sum_x_squared = 0;
 
     for (const DataPoint& point : data) {
         sum_x += point.x;
@@ -63,7 +63,7 @@ double predict(const LinearRegressionModel& model, double x) {
 }
 
 double meanSquaredError(const LinearRegressionModel& model, const vector<DataPoint>& data) {
-    double mse = 0.0;
+    double mse = 0;
     for (const DataPoint& point : data) {
         double prediction = predict(model, point.x);
         mse += pow(point.y - prediction, 2);
