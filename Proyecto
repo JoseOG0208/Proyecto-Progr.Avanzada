@@ -24,7 +24,7 @@ vector<DataPoint> readData(const string& filename) {
         stringstream ss(line);
         DataPoint point;
         char comma;
-        ss >> point.x >> comma >> point.y; // Asumiendo que los datos están separados por comas
+        ss >> point.x >> comma >> point.y;
         data.push_back(point);
     }
 
@@ -87,7 +87,7 @@ void saveResults(const LinearRegressionModel& model, const vector<DataPoint>& da
 }
 
 int main() {
-    const string dataFilename = "datos.csv"; // Asegúrate de que este archivo exista en la misma carpeta que tu programa
+    const string dataFilename = "datos.csv";
     const string resultsFilename = "resultados.txt";
 
     try {
